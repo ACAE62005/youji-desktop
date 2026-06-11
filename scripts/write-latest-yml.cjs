@@ -17,6 +17,15 @@ if (!setupFile) {
 }
 
 const setupPath = path.join(releaseDir, setupFile);
+const releaseAssetName = `youji-Setup-${pkg.version}-x64.exe`;
+const releaseAssetPath = path.join(releaseDir, releaseAssetName);
+fs.copyFileSync(setupPath, releaseAssetPath);
+
+const setupBlockmapPath = `${setupPath}.blockmap`;
+if (fs.existsSync(setupBlockmapPath)) {
+  fs.copyFileSync(setupBlockmapPath, `${releaseAssetPath}.blockmap`);
+}
+
 const file = fs.readFileSync(setupPath);
 const sha512 = crypto.createHash("sha512").update(file).digest("base64");
 const stat = fs.statSync(setupPath);
@@ -24,14 +33,14 @@ const stat = fs.statSync(setupPath);
 const yaml = [
   `version: ${pkg.version}`,
   "files:",
-  `  - url: ${JSON.stringify(setupFile)}`,
+  `  - url: ${JSON.stringify(releaseAssetName)}`,
   `    sha512: ${sha512}`,
   `    size: ${stat.size}`,
-  `path: ${JSON.stringify(setupFile)}`,
+  `path: ${JSON.stringify(releaseAssetName)}`,
   `sha512: ${sha512}`,
   `releaseDate: ${JSON.stringify(stat.mtime.toISOString())}`,
   ""
 ].join("\n");
 
 fs.writeFileSync(path.join(releaseDir, "latest.yml"), yaml, "utf8");
-console.log(`Wrote release/latest.yml for ${setupFile}`);
+console.log(`Wrote release/latest.yml for ${releaseAssetName}`);
