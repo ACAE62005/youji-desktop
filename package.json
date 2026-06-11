@@ -1,0 +1,77 @@
+{
+  "name": "youji-desktop",
+  "version": "1.0.4",
+  "description": "Local desktop mail code lookup tool",
+  "main": "dist/main/main.js",
+  "private": true,
+  "scripts": {
+    "dev": "npm run build:main && concurrently -k \"vite --host 127.0.0.1\" \"wait-on http://127.0.0.1:5173 && electron .\"",
+    "build:main": "tsc -p tsconfig.electron.json",
+    "build": "npm run build:main && vite build",
+    "start": "npm run build && electron .",
+    "typecheck": "tsc --noEmit && tsc -p tsconfig.electron.json --noEmit",
+    "dist:win": "npm run build && electron-builder --win portable",
+    "dist:installer": "npm run build && electron-builder --win nsis && node scripts/write-latest-yml.cjs"
+  },
+  "build": {
+    "appId": "com.local.youji",
+    "productName": "邮迹",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "build/icon.ico",
+      "build/icon.png",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "build/update-config.json",
+        "to": "update-config.json"
+      }
+    ],
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "${productName}-${version}-${arch}.${ext}"
+    },
+    "nsis": {
+      "artifactName": "${productName}-Setup-${version}-${arch}.${ext}",
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "邮迹",
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico"
+    }
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.9",
+    "lucide-react": "^0.468.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.3",
+    "@types/react": "^19.0.8",
+    "@types/react-dom": "^19.0.3",
+    "@vitejs/plugin-react": "^4.3.4",
+    "concurrently": "^9.1.2",
+    "electron": "^31.7.0",
+    "electron-builder": "^26.15.2",
+    "playwright": "^1.60.0",
+    "typescript": "^5.7.3",
+    "vite": "^6.3.1",
+    "wait-on": "^8.0.3"
+  }
+}
